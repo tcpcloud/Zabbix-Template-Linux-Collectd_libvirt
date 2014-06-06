@@ -6,35 +6,39 @@ use warnings;
 use Collectd::Unixsock();
 
 { # main
-        my $path = $ARGV[0] || "/var/run/collectd-unixsock";
-        my $command = $ARGV[1] || "LISTVAL";
-        my @vals;
-        our $val = $ARGV[2];
-        our $val_type = $ARGV[3] || "undef";
+	my $path = $ARGV[0] || "/var/run/collectd-unixsock";
+	my $command = $ARGV[1] || "LISTVAL";
+	my @vals;
+	our $val = $ARGV[2];
+	our $val_type = $ARGV[3] || "undef";
 
-        if( $command eq "LISTVAL" and $val eq ""){
-            $val = "ALL"
-        }
+	if( $command eq "LISTVAL" and $val eq ""){
+	    $val = "ALL"
+	}
 
-        if( $command eq "GETVAL"){
+	if( $command eq "GETVAL"){
+	    
+	    if( $val =~ /^instance-[0-9a-z]{8,8}-virt_cpu_total/ ){
+		@vals = split(/-/, $val);
+		$val = $vals[0] . "-" . $vals[1] . "/libvirt/" . $vals[2]	
+	    }
+	    elsif($val =~ /^instance-[0-9a-z]{8,8}-disk-/ and $val_type =~ /^OPS/){
+		@vals = split(/-/, $val);
+		    $val = $vals[0] . "-" . $vals[1] . "/libvirt/" . $vals[2] . "_ops-" .$vals[3]		    
+	    
+	    }
+	    elsif($val =~ /^instance-[0-9a-z]{8,8}-disk-/ and $val_type =~ /^OCT/){
+		@vals = split(/-/, $val);
+		    $val = $vals[0] . "-" . $vals[1] . "/libvirt/" . $vals[2] . "_octets-" .$vals[3]
+	    }
 
-            if( $val =~ /^instance-[0-9a-z]{8,8}-virt_cpu_total/ ){
-                @vals = split(/-/, $val);
-                $val = $vals[0] . "-" . $vals[1] . "/libvirt/" . $vals[2]
-            }
-            elsif($val =~ /^instance-[0-9a-z]{8,8}-disk-/ and $val_type =~ /^OPS/){
-                @vals = split(/-/, $val);
-                    $val = $vals[0] . "-" . $vals[1] . "/libvirt/" . $vals[2] . "_ops-" .$vals[3]
+	    $command .= " " . $val;
+	    
+	    #debug 
+	    #print "DEBUG: command: " . $command . " val: " . $val . "\n";
+	}
 
-            }
-
-            $command .= " " . $val;
-
-            #debug
-            #print $command . "\n";
-        }
-
-        my $sock = Collectd::Unixsock->new($path);
+	my $sock = Collectd::Unixsock->new($path);
 
         my $cmds = {
                 HELP    => \&cmd_help,
@@ -47,41 +51,41 @@ use Collectd::Unixsock();
         };
 
 
-        if (! $sock) {
-                print STDERR "Unable to connect to $path!\n";
-                exit 1;
-        }
+	if (! $sock) {
+		print STDERR "Unable to connect to $path!\n";
+		exit 1;
+	}
 
-        my $line = $command;
+	my $line = $command;
 
-        last if (! $line);
+	last if (! $line);
 
-        chomp $line;
+	chomp $line;
 
-        last if ($line =~ m/^quit$/i);
+	last if ($line =~ m/^quit$/i);
 
-        my ($cmd) = $line =~ m/^(\w+)\s*/;
-        $line = $';
+	my ($cmd) = $line =~ m/^(\w+)\s*/;
+	$line = $';
 
-        next if (! $cmd);
-        $cmd = uc $cmd;
+	next if (! $cmd);
+	$cmd = uc $cmd;
 
-        my $f = undef;
-        if (defined $cmds->{$cmd}) {
-                $f = $cmds->{$cmd};
-        }
-        else {
-                print STDERR "ERROR: Unknown command $cmd!\n";
-                next;
-        }
+	my $f = undef;
+	if (defined $cmds->{$cmd}) {
+		$f = $cmds->{$cmd};
+	}
+	else {
+		print STDERR "ERROR: Unknown command $cmd!\n";
+		next;
+	}
 
-        if (! $f->($sock, $line)) {
-            print STDERR "ERROR: Command failed!\n";
-            next;
-        }
+	if (! $f->($sock, $line)) {
+	    print STDERR "ERROR: Command failed!\n";
+	    next;
+	}
 
-        $sock->destroy();
-        exit 0;
+	$sock->destroy();
+	exit 0;
 }
 
 sub tokenize {
@@ -137,7 +141,7 @@ sub putid {
 
         my $string;
 
-        our $val;
+	our $val;
 
         $string = $ident->{'host'} . "/" . $ident->{'plugin'};
 
@@ -151,86 +155,86 @@ sub putid {
                 $string .= "-" . $ident->{'type_instance'};
         }
 
-        if( $val eq "ALL"){
-            return $string . $/;
-        }
-        elsif( $ident->{'type'} eq "virt_cpu_total" and $val eq "CPU"){
-            return $string . $/;
-        }
+	if( $val eq "ALL"){
+    	    return $string . $/;
+	}
+	elsif( $ident->{'type'} eq "virt_cpu_total" and $val eq "CPU"){
+    	    return $string . $/;
+	}
 }
 
 sub putidjson {
         my $ident = shift || return;
         my $string;
         my $stringjson;
-        our $val;
+	our $val;
 
         $string = $ident->{'host'};
 
-        if( $val eq "ALL"){
-            $string .= "-" . $ident->{'plugin'};
-        }
+	if( $val eq "ALL"){
+	    $string .= "-" . $ident->{'plugin'};
+	}
 
         if (defined $ident->{'plugin_instance'}) {
                 $string .= "-" . $ident->{'plugin_instance'};
         }
 
-        if( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^disk/ and $val eq "LIBVIRT-DISK"){
-            $ident->{'type'} =~ s/_ops//;
+	if( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^disk/ and $val eq "LIBVIRT-DISK"){
+	    $ident->{'type'} =~ s/_ops//;
             $string .= "-" . $ident->{'type'};
-        }
-        else{
+	}
+	else{	
             $string .= "-" . $ident->{'type'};
-        }
+	}
 
         if (defined $ident->{'type_instance'}) {
                 $string .= "-" . $ident->{'type_instance'};
         }
 
-        $stringjson = "\t\t{\n\t\t\t\"{#NAME}\":\"" . $string . "\"},\n";
+	$stringjson = "\t\t{\n\t\t\t\"{#NAME}\":\"" . $string . "\"},\n";
 
-        if( $val eq "ALL"){
-            return $stringjson;
-        }
-        elsif( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} eq "virt_cpu_total" and $val eq "LIBVIRT-CPU"){
-            return $stringjson;
-        }
-        elsif( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^disk$/ and $val eq "LIBVIRT-DISK"){
-            return $stringjson;
-        }
+	if( $val eq "ALL"){
+    	    return $stringjson;
+	}
+	elsif( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} eq "virt_cpu_total" and $val eq "LIBVIRT-CPU"){
+    	    return $stringjson;
+	}
+	elsif( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^disk$/ and $val eq "LIBVIRT-DISK"){
+    	    return $stringjson;
+	}
 }
 
 sub listval {
-        my $sock = shift || return;
-        my $line = shift;
+	my $sock = shift || return;
+	my $line = shift;
 
-        my @res;
+	my @res;
 
-        if ($line ne "") {
-                print STDERR "Synopsis: LISTVAL" . $/;
-                return;
-        }
+	if ($line ne "") {
+		print STDERR "Synopsis: LISTVAL" . $/;
+		return;
+	}
 
-        @res = $sock->listval();
+	@res = $sock->listval();
 
-        if (! @res) {
-            print STDERR "socket error: " . $sock->{'error'} . $/;
-            return;
-        }
+	if (! @res) {
+	    print STDERR "socket error: " . $sock->{'error'} . $/;
+	    return;
+	}
 
-#       foreach my $ident (@res) {
-#               print putidB($ident);
-#       }
+#	foreach my $ident (@res) {
+#		print putidB($ident);
+#	}
 
-        print "{\n\t\"data\":[\n";
+	print "{\n\t\"data\":[\n";
 
-        foreach my $ident (@res) {
-                print putidjson($ident);
-        }
+	foreach my $ident (@res) {
+		print putidjson($ident);
+	}
 
-        print "\t]\n}\n";
+	print "\t]\n}\n";
 
-        return 1;
+	return 1;
 }
 
 sub getval {
@@ -242,8 +246,8 @@ sub getval {
         my $id;
         my $vals;
 
-        my $err_msg;
-        our $val_type;
+	my $err_msg;
+	our $val_type;
 
         if (! @line) {
                 return;
@@ -265,45 +269,60 @@ sub getval {
 
         if (! $vals) {
 
-                $err_msg = $sock->{'error'};
+		$err_msg = $sock->{'error'};
 
-                if ("$err_msg" eq "No such value") {
-                    print "0" .$/;
-                    return 1;
-                }
-#               else
-                {
-#                   print STDERR "socket error: " . $sock->{'error'} . $/;
-                    print STDERR "socket error: " . $sock->{'error'} . $/;
-                    return;
+		if ("$err_msg" eq "No such value") {
+		    print "0" .$/;
+		    return 1;
+		}
+#		else
+		{
+#            	    print STDERR "socket error: " . $sock->{'error'} . $/;
+            	    print STDERR "socket error: " . $sock->{'error'} . $/;
+		    return;
                 }
         }
 
         foreach my $key (keys %$vals) {
 
-            #debug
-            #print $line[0] . "\n";
+	    #debug
+	    #print $line[0] . "\n";
 
-            if( $line[0] =~ /^instance-[0-9a-z]{8,8}\/libvirt\/virt_cpu_total/ ){
+	    if( $line[0] =~ /^instance-[0-9a-z]{8,8}\/libvirt\/virt_cpu_total/ ){
                 print "$vals->{$key}\n";
-            }
-            elsif($line[0] =~ /^instance-[0-9a-z]{8,8}\/libvirt\/disk_ops/){
-
-                if($val_type eq "OPS-READ" and $key eq "read"){
-                    print "$vals->{$key}\n";
-                }
-                elsif($val_type eq "OPS-WRITE" and $key eq "write"){
-                    print "$vals->{$key}\n";
-                }
-                elsif($val_type eq "OPS"){
+	    }
+	    elsif($line[0] =~ /^instance-[0-9a-z]{8,8}\/libvirt\/disk_ops/){
+	    
+		if($val_type eq "OPS-READ" and $key eq "read"){
+            	    print "$vals->{$key}\n";
+		}
+		elsif($val_type eq "OPS-WRITE" and $key eq "write"){
+            	    print "$vals->{$key}\n";
+		}
+		elsif($val_type eq "OPS"){
                     print "\t$key: $vals->{$key}\n";
-                }
-            }
-            else{
+		}
+	    }
+	    elsif($line[0] =~ /^instance-[0-9a-z]{8,8}\/libvirt\/disk_octets/){
+	    
+		#debug
+		#print "DEBUG: disk_octets options ..." . $/;
+		
+		if($val_type eq "OCT-READ" and $key eq "read"){
+            	    print "$vals->{$key}\n";
+		}
+		elsif($val_type eq "OCT-WRITE" and $key eq "write"){
+            	    print "$vals->{$key}\n";
+		}
+		elsif($val_type eq "OCT"){
+                    print "\t$key: $vals->{$key}\n";
+		}
+
+	    }
+	    else{
                 print "\t$key: $vals->{$key}\n";
-            }
+	    }
         }
         return 1;
 }
-
 
