@@ -39,3 +39,7 @@ Ubuntu 12.04 x86_64 with KVM (kernel 3.5.0-44), zabbix-agent 2.0.10 - 2.0.12, co
 * disk octets READ - on all libvirt guests
 
 * disk octets WRITE - on all libvirt guests
+
+* network interface packets TR/RX - on all libvirt guests
+
+* network interface octets TR/RX - on all libvirt guests

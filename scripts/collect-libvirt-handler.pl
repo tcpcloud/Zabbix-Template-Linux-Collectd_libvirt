@@ -31,11 +31,18 @@ use Collectd::Unixsock();
 		@vals = split(/-/, $val);
 		    $val = $vals[0] . "-" . $vals[1] . "/libvirt/" . $vals[2] . "_octets-" .$vals[3]
 	    }
-
+	    elsif($val =~ /^instance-[0-9a-z]{8,8}-if-/ and $val_type =~ /^NET-PACKETS/){
+		@vals = split(/-/, $val);
+		    $val = $vals[0] . "-" . $vals[1] . "/libvirt/" . $vals[2] . "_packets-" .$vals[3]."-".$vals[4]
+	    }
+	    elsif($val =~ /^instance-[0-9a-z]{8,8}-if-/ and $val_type =~ /^NET-OCTETS/){
+		@vals = split(/-/, $val);
+		    $val = $vals[0] . "-" . $vals[1] . "/libvirt/" . $vals[2] . "_octets-" .$vals[3]."-".$vals[4]
+	    }
 	    $command .= " " . $val;
 	    
 	    #debug 
-	    #print "DEBUG: command: " . $command . " val: " . $val . "\n";
+	    #print "DEBUG: command: " . $command . " val: " . $val . " \n";
 	}
 
 	my $sock = Collectd::Unixsock->new($path);
@@ -179,9 +186,13 @@ sub putidjson {
                 $string .= "-" . $ident->{'plugin_instance'};
         }
 
-	if( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^disk/ and $val eq "LIBVIRT-DISK"){
+	if ($ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^disk/ and $val eq "LIBVIRT-DISK"){
 	    $ident->{'type'} =~ s/_ops//;
             $string .= "-" . $ident->{'type'};
+	}
+	elsif ($ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^if/ and $val eq "LIBVIRT-NET") {
+	    $ident->{'type'} =~ s/_packets//;
+    	    $string .= "-" . $ident->{'type'};
 	}
 	else{	
             $string .= "-" . $ident->{'type'};
@@ -200,6 +211,9 @@ sub putidjson {
     	    return $stringjson;
 	}
 	elsif( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^disk$/ and $val eq "LIBVIRT-DISK"){
+    	    return $stringjson;
+	}
+	elsif( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^if$/ and $val eq "LIBVIRT-NET"){
     	    return $stringjson;
 	}
 }
@@ -318,6 +332,38 @@ sub getval {
                     print "\t$key: $vals->{$key}\n";
 		}
 
+	    }
+	    elsif($line[0] =~ /^instance-[0-9a-z]{8,8}\/libvirt\/if_packets/){
+
+		#debug
+		#print "DEBUG: if_packets options ..." . $/;
+		
+		if($val_type eq "NET-PACKETS-RX" and $key eq "rx"){
+            	    print "$vals->{$key}\n";
+		}
+		elsif($val_type eq "NET-PACKETS-TX" and $key eq "tx"){
+            	    print "$vals->{$key}\n";
+		}
+		elsif($val_type eq "NET-PACKETS"){
+                    print "\t$key: $vals->{$key}\n";
+		}
+		
+	    }
+	    elsif($line[0] =~ /^instance-[0-9a-z]{8,8}\/libvirt\/if_octets/){
+
+		#debug
+		#print "DEBUG: if_octets options ..." . $/;
+		
+		if($val_type eq "NET-OCTETS-RX" and $key eq "rx"){
+            	    print "$vals->{$key}\n";
+		}
+		elsif($val_type eq "NET-OCTETS-TX" and $key eq "tx"){
+            	    print "$vals->{$key}\n";
+		}
+		elsif($val_type eq "NET-OCTETS"){
+                    print "\t$key: $vals->{$key}\n";
+		}
+		
 	    }
 	    else{
                 print "\t$key: $vals->{$key}\n";
