@@ -40,7 +40,7 @@ Tested on:
 
 ### installation - Automated
 
-* use puppet module/manifest [czhujer/puppet-zabbixagent](https://github.com/czhujer/puppet-zabbixagent)
+* use puppet module/manifest [czhujer/puppet-zabbixagent](https://github.com/czhujer/puppet-zabbixagent#usage---example-manual-run)
 
 ### Monitored items
 
