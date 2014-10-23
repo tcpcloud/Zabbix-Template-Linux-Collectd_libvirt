@@ -16,6 +16,7 @@
 
 [root@test collectd-libvirt]# ./collect-libvirt-handler.pl /var/run/collectd-unixsock LISTVAL LIBVIRT-DISK
 
+```
 {
         "data":[
                 {
@@ -26,9 +27,11 @@
                         "{#NAME}":"instance-00000111-disk-vda"},
         ]
 }
+```
 
 [root@test collectd-libvirt]# ./collect-libvirt-handler.pl /var/run/collectd-unixsock LISTVAL LIBVIRT-NET
 
+```
 {
         "data":[
                 {
@@ -39,5 +42,6 @@
                         "{#NAME}":"instance-00000111-if-tap869d29b8-08"},
         ]
 }
+```
 
 
