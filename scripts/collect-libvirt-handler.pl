@@ -31,12 +31,12 @@ use Collectd::Unixsock();
 		    $val = $vals[0] . "/libvirt/disk_octets" .$vals[1]
 	    }
 	    elsif($val =~ /^.*-if-/ and $val_type =~ /^NET-PACKETS/){
-		@vals = split(/-/, $val);
-		    $val = $vals[0] . $vals[1] . "/libvirt/" . $vals[2] . "_packets-" .$vals[3]."-".$vals[4]
+		@vals = split(/-if/, $val);
+		    $val = $vals[0] . "/libvirt/if_packets" . $vals[1]
 	    }
 	    elsif($val =~ /^.*-if-/ and $val_type =~ /^NET-OCTETS/){
-		@vals = split(/-/, $val);
-		    $val = $vals[0] . $vals[1] . "/libvirt/" . $vals[2] . "_octets-" .$vals[3]."-".$vals[4]
+		@vals = split(/-if/, $val);
+		    $val = $vals[0] . "/libvirt/if_octets" .$vals[1]
 	    }
 	    $command .= " " . $val;
 	    
