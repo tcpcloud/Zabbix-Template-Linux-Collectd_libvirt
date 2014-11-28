@@ -201,7 +201,7 @@ sub putidjson {
                 $string .= "-" . $ident->{'type_instance'};
         }
 
-	$stringjson = "\t\t{\n\t\t\t\"{#NAME}\":\"" . $string . "\"},\n";
+	$stringjson = "{#NAME}\":\"" . $string . "\"";
 
 	if( $val eq "ALL"){
     	    return $stringjson;
@@ -239,13 +239,29 @@ sub listval {
 #		print putidB($ident);
 #	}
 
-	print "{\n\t\"data\":[\n";
+	my $firstline = 1;
+
+	print "{\n\t\"data\":[\n\n";
 
 	foreach my $ident (@res) {
-		print putidjson($ident);
-	}
 
-	print "\t]\n}\n";
+      my $rs = putidjson($ident);
+	   
+	   if(length($rs) > 0){
+
+	   	print "\t,\n" if not $firstline;
+	   	$firstline = 0;
+	   	print "\t{\n";
+
+	   	print "\t\t\"" . putidjson($ident) . "\n";
+
+	   	print "\t}\n";
+	   } #end of if
+
+	} #end of foreach
+
+	print "\n\t]\n";
+	print "}\n";
 
 	return 1;
 }
