@@ -18,6 +18,8 @@ Tested on:
 
 ### installation - Manual
 
+##### on monitored server (when you have kvm/libvirt)
+
 * install a configure zabbix-agent
 
 * copy file "zabbix-collectd.conf" into your zabbix include folder
@@ -37,13 +39,17 @@ Tested on:
     yum install epel-release
 ``
 
-* copy collectd config file (collectd.conf)
+* copy collectd config file (collectd.conf) into zabbix agent config folder (e.g. /etc/zabbix/zabbix_agentd.d)
 
 * copy script "collect-libvirt-handler.pl" into /etc/zabbix/scripts/collectd-libvirt folder (with 755 perms)
 
 * reboot collectd service
 
 * reboot zabbix-agent service
+
+##### on zabbix server
+
+* import template (xml file)
 
 ### installation - Automated
 
