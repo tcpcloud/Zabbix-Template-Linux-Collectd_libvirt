@@ -33,7 +33,7 @@ Tested on:
     yum install collectd collectd-virt perl-Collectd
 ```
 
-  * if yum installation fails, install epel repo package (extras repo)
+    * if yum installation fails, install epel repo package (extras repo)
 
 ``
     yum install epel-release
