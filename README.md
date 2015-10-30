@@ -30,6 +30,13 @@ Tested on:
 
     yum install collectd collectd-virt perl-Collectd
 ```
+
+* * if yum installation fails, install epel repo package (extras repo)
+
+``
+    yum install epel-release
+``
+
 * copy collectd config file (collectd.conf)
 
 * copy script "collect-libvirt-handler.pl" into /etc/zabbix/scripts/collectd-libvirt folder (with 755 perms)
