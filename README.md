@@ -4,13 +4,11 @@ A Zabbix templates for libvirt stats
 
 Tested on:
 
-```
- Ubuntu 12.04 x86_64 with KVM (kernel 3.5.0-44), collectd 4.10
- Zabbix 2.0.x
+> Ubuntu 12.04 x86_64 with KVM (kernel 3.5.0-44), collectd 4.10
+> Zabbix 2.0.x
 
- CentOS 6.x X86_64, Collectd 4.10
- Zabbix 2.0.x
-```
+> CentOS 6.x X86_64, Collectd 4.10
+> Zabbix 2.0.x
 
 ### Authors
 * Patrik Majer <patrik.majer.pisek@gmail.com>
@@ -26,18 +24,18 @@ Tested on:
 
 * install collectd package(s) and perl modules
 
-```
+    ```sh
     apt-get install collectd
     apt-get install libregexp-common-perl
 
     yum install collectd collectd-virt perl-Collectd
-```
+    ```
 
-    * if yum installation fails, install epel repo package (extras repo)
+* * if yum installation fails, install epel repo package (extras repo)
 
-``
+    ```sh
     yum install epel-release
-``
+    ```
 
 * copy collectd config file (collectd.conf) into zabbix agent config folder (e.g. /etc/zabbix/zabbix_agentd.d)
 
