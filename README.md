@@ -18,7 +18,7 @@ Tested on:
 
 ### installation - Manual
 
-##### on monitored server (when you have kvm/libvirt)
+##### on monitored server (where you have kvm/libvirt)
 
 * install a configure zabbix-agent
 
@@ -33,7 +33,7 @@ Tested on:
     yum install collectd collectd-virt perl-Collectd
 ```
 
-* * if yum installation fails, install epel repo package (extras repo)
+  * if yum installation fails, install epel repo package (extras repo)
 
 ``
     yum install epel-release
