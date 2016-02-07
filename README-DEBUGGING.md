@@ -39,9 +39,11 @@ GETVAL serve.lordcritical/libvirt/virt_cpu_total
 
 * and into collectd unixsocket arrive queries
 
+```
 GETVAL serve.lordcritical/libvirt/disk_ops-vda
 GETVAL serve.lordcritical/libvirt/disk_octets-vda
 GETVAL serve.lordcritical/libvirt/virt_cpu_total
+```
 
 ## Example of Discovery results
 
