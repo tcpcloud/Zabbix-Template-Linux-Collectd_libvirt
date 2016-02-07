@@ -52,13 +52,13 @@ https://github.com/czhujer/Zabbix-Template-Linux-Collectd_libvirt/blob/master/do
 
 ## DEBUG
 
-1. install template https://github.com/czhujer/Zabbix-Template-Linux-Collectd_libvirt
+* install template https://github.com/czhujer/Zabbix-Template-Linux-Collectd_libvirt
 
-2. check if script collect-libvirt-handler.pl works
+* check if script collect-libvirt-handler.pl works
 
-3. uncomment line 45 (print "DEBUG: command: " . $command . " val: " . $val . " \n";)
+* uncomment line 45 (print "DEBUG: command: " . $command . " val: " . $val . " \n";)
 
-4. check results ..
+* check results ..
 
 
 ~~~
@@ -68,33 +68,33 @@ DEBUG: command: GETVAL instance-00000841/libvirt/virt_cpu_total val: instance-00
 2000000
 ~~~
 
-5. if dont have, download exmaple script for collectd unixsocket communication..
+* if dont have, download exmaple script for collectd unixsocket communication..
 
 ```
   [root@localhost]# wget https://raw.githubusercontent.com/collectd/collectd/master/contrib/cussh.pl
 ```
 
-6. run example script
+* run example script
 
 ```
   [root@localhost]# ./cussh.pl or ./cussh.pl /var/run/collectd-unixsock
 ```
 
-7. send command from $command value into cussh shel..
+* send command from $command value into cussh shel..
 
 ```
 cussh> GETVAL instance-00000841/libvirt/virt_cpu_total
         ns: 2000000
 ```
 
-8. check if this number is same as returns collect-libvirt-handler.pl
+* check if this number is same as returns collect-libvirt-handler.pl
 
 
 ### DEBUG items name
 
 simillar like a DEBUG
 
-7. run commnad "LISTVAL" in cussh shel..
+* run commnad "LISTVAL" in cussh shel..
 
 cussh> LISTVAL
 
@@ -108,7 +108,7 @@ cussh> LISTVAL
 1413985396 instance-00000935/libvirt/virt_vcpu-0
 1413985396 instance-00000935/libvirt/virt_vcpu-1
 
-8. modify script collect-libvirt-handler.pl like that, so print to the same things as you see in LISTVAL part...
+* modify script collect-libvirt-handler.pl like that, so print to the same things as you see in LISTVAL part...
 
 LINES 21 - 24 is for "cpu_total"
 
