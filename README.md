@@ -20,7 +20,7 @@ Tested on:
 
 * install a configure zabbix-agent
 
-* copy file "zabbix-collectd.conf" into your zabbix include folder
+* copy file "zabbix-collectd.conf" into zabbix agent config folder (e.g. /etc/zabbix/zabbix_agentd.d)
 
 * install collectd package(s) and perl modules
 
@@ -37,7 +37,8 @@ Tested on:
     yum install epel-release
     ```
 
-* copy collectd config file (collectd.conf) into zabbix agent config folder (e.g. /etc/zabbix/zabbix_agentd.d)
+* copy/rewrite collectd config file (collectd.conf) in /etc
+ or enable libvirt & unixsock plugins in collectd service
 
 * copy script "collect-libvirt-handler.pl" into /etc/zabbix/scripts/collectd-libvirt folder (with 755 perms)
 
