@@ -56,7 +56,9 @@ https://github.com/czhujer/Zabbix-Template-Linux-Collectd_libvirt/blob/master/do
 
 * check if script collect-libvirt-handler.pl works
 
-* uncomment line 45 (print "DEBUG: command: " . $command . " val: " . $val . " \n";)
+* uncomment line 45
+
+  (print "DEBUG: command: " . $command . " val: " . $val . " \n";)
 
 * check results ..
 
@@ -96,6 +98,7 @@ simillar like a DEBUG
 
 * run commnad "LISTVAL" in cussh shel..
 
+```
 cussh> LISTVAL
 
 1413985396 instance-00000935/libvirt/disk_octets-vda
@@ -107,6 +110,7 @@ cussh> LISTVAL
 1413985396 instance-00000935/libvirt/virt_cpu_total
 1413985396 instance-00000935/libvirt/virt_vcpu-0
 1413985396 instance-00000935/libvirt/virt_vcpu-1
+```
 
 * modify script collect-libvirt-handler.pl like that, so print to the same things as you see in LISTVAL part...
 
