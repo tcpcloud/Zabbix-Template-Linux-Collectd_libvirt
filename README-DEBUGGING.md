@@ -70,16 +70,22 @@ DEBUG: command: GETVAL instance-00000841/libvirt/virt_cpu_total val: instance-00
 
 5. if dont have, download exmaple script for collectd unixsocket communication..
 
-  (wget https://raw.githubusercontent.com/collectd/collectd/master/contrib/cussh.pl)
+```
+  [root@localhost]# wget https://raw.githubusercontent.com/collectd/collectd/master/contrib/cussh.pl
+```
 
 6. run example script
 
+```
   [root@localhost]# ./cussh.pl or ./cussh.pl /var/run/collectd-unixsock
+```
 
 7. send command from $command value into cussh shel..
 
+```
 cussh> GETVAL instance-00000841/libvirt/virt_cpu_total
         ns: 2000000
+```
 
 8. check if this number is same as returns collect-libvirt-handler.pl
 
