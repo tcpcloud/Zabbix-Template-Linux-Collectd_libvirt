@@ -35,7 +35,7 @@ GETVAL serve.lordcritical/libvirt/disk_ops-vda OPS-WRITE
 GETVAL serve.lordcritical/libvirt/disk_octets-vda OCT-READ
 GETVAL serve.lordcritical/libvirt/disk_octets-vda OCT-WRITE
 GETVAL serve.lordcritical/libvirt/virt_cpu_total
-``
+```
 
 * and into collectd unixsocket arrive queries
 
