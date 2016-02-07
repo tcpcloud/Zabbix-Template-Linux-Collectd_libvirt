@@ -38,6 +38,7 @@ Tested on:
     ```
 
 * copy/rewrite collectd config file (collectd.conf) in /etc
+
  or enable libvirt & unixsock plugins in collectd service
 
 * copy script "collect-libvirt-handler.pl" into /etc/zabbix/scripts/collectd-libvirt folder (with 755 perms)
