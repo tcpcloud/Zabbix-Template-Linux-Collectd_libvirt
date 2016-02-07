@@ -84,7 +84,7 @@ cussh> GETVAL instance-00000841/libvirt/virt_cpu_total
 8. check if this number is same as returns collect-libvirt-handler.pl
 
 
-DEBUG items name
+### DEBUG items name
 
 simillar like a DEBUG
 
@@ -109,5 +109,3 @@ LINES 21 - 24 is for "cpu_total"
 LINES 25 - 33 is for "disk stats"
 
 LINES 34 - 41 is for "networks stats"
-
-
