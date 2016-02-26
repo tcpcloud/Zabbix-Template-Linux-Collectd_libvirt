@@ -9,7 +9,7 @@ use Collectd::Unixsock();
 	my $path = $ARGV[0] || "/var/run/collectd-unixsock";
 	my $command = $ARGV[1] || "LISTVAL";
 	my @vals;
-	our $val = $ARGV[2] \\ "undef";
+	our $val = $ARGV[2] || "undef";
 	our $val_type = $ARGV[3] || "undef";
 
 	if( $command eq "LISTVAL" and $val eq "undef"){
