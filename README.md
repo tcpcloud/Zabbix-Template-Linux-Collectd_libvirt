@@ -2,7 +2,7 @@
 
 A Zabbix templates for libvirt stats
 
-Tested on:
+versions 1.2 and lower were tested on:
 
 > Ubuntu 12.04 x86_64 with KVM (kernel 3.5.0-44), collectd 4.10
 > Zabbix 2.0.x
