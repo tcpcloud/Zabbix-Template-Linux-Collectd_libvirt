@@ -37,8 +37,6 @@ Tested on:
     yum install epel-release
     ```
 
-* copy collectd config file (collectd.conf) into zabbix agent config folder (e.g. /etc/zabbix/zabbix_agentd.d)
-=======
 * copy/rewrite collectd config file (collectd.conf) in /etc
 
 * * or enable libvirt & unixsock plugins in collectd service
