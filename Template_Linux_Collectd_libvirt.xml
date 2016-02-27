@@ -94,9 +94,6 @@
                                 <application>
                                     <name>Libvirt - disk octets stats</name>
                                 </application>
-                                <application>
-                                    <name>Libvirt - Disk operations stats</name>
-                                </application>
                             </applications>
                             <valuemap/>
                         </item_prototype>
