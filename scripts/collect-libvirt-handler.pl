@@ -11,32 +11,65 @@ use Collectd::Unixsock();
 	my @vals;
 	our $val = $ARGV[2] || "undef";
 	our $val_type = $ARGV[3] || "undef";
+        our $collectd_version;
+
+        $collectd_version = `collectd -h |grep \'http://\' | sed \'s/\^.*[^0-9]\\([0-9]*\\.[0-9]*\\.[0-9]*\\).*\$/\\1/\' | tr -d '\n'`;
+
+#        print "INFO: collectd version: " . $collectd_version . "\n";
 
 	if( $command eq "LISTVAL" and $val eq "undef"){
 	    $val = "ALL"
 	}
 
 	if( $command eq "GETVAL"){
-	    
+	
 	    if( $val =~ /^.*-virt_cpu_total/ ){
 		@vals = split(/-virt/, $val);
-		$val = $vals[0] . "/libvirt/" . "virt" . $vals[1]	
+		
+		if( $collectd_version =~ /5.5/ ){
+		   $val = $vals[0] . "/virt-" . $vals[0] . "/virt" . $vals[1]
+		}
+		else{
+		   $val = $vals[0] . "/libvirt/" . "virt" . $vals[1]
+		}
 	    }
 	    elsif($val =~ /^.*-disk-/ and $val_type =~ /^OPS/){
 		@vals = split(/-disk/, $val);
-		    $val = $vals[0] . "/libvirt/disk_ops" .$vals[1]
+		
+		if( $collectd_version =~ /5.5/ ){
+		  $val = $vals[0] . "/virt-" . $vals[0] . "/disk_ops" .$vals[1]
+		}
+		else {
+		  $val = $vals[0] . "/libvirt/disk_ops" .$vals[1]
+		}
 	    }
 	    elsif($val =~ /^.*-disk-/ and $val_type =~ /^OCT/){
 		@vals = split(/-disk/, $val);
+		
+		if( $collectd_version =~ /5.5/ ){
+		    $val = $vals[0] . "/virt-" . $vals[0] . "/disk_octets" .$vals[1]
+		}
+		else {
 		    $val = $vals[0] . "/libvirt/disk_octets" .$vals[1]
+		}
 	    }
 	    elsif($val =~ /^.*-if-/ and $val_type =~ /^NET-PACKETS/){
 		@vals = split(/-if/, $val);
+		if( $collectd_version =~ /5.5/ ){
+		    $val = $vals[0] . "/virt-" . $vals[0] . "/if_packets" . $vals[1]
+		}
+		else {
 		    $val = $vals[0] . "/libvirt/if_packets" . $vals[1]
+		}
 	    }
 	    elsif($val =~ /^.*-if-/ and $val_type =~ /^NET-OCTETS/){
 		@vals = split(/-if/, $val);
+		if( $collectd_version =~ /5.5/ ){
+		    $val = $vals[0] . "/virt-" . $vals[0] . "/if_octets" .$vals[1]
+		}
+		else{
 		    $val = $vals[0] . "/libvirt/if_octets" .$vals[1]
+		}
 	    }
 	    $command .= " " . $val;
 	    
@@ -173,7 +206,17 @@ sub putidjson {
         my $ident = shift || return;
         my $string;
         my $stringjson;
+#        my $stringjson5;
 	our $val;
+#	our $collectd_version;
+
+        #debug dumping
+        sub print_hash {
+            my $href = shift;
+            print "$_\t=> $href->{$_}\n" for keys %{$href};
+        }
+        #print_hash($ident);
+        #end of debug dumping
 
         $string = $ident->{'host'};
 
@@ -181,7 +224,7 @@ sub putidjson {
 	    $string .= "-" . $ident->{'plugin'};
 	}
 
-        if (defined $ident->{'plugin_instance'}) {
+        if (defined $ident->{'plugin_instance'} and $ident->{'plugin'} ne "virt") {
                 $string .= "-" . $ident->{'plugin_instance'};
         }
 
@@ -190,6 +233,14 @@ sub putidjson {
             $string .= "-" . $ident->{'type'};
 	}
 	elsif ($ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^if/ and $val eq "LIBVIRT-NET") {
+	    $ident->{'type'} =~ s/_packets//;
+    	    $string .= "-" . $ident->{'type'};
+	}
+	elsif ($ident->{'plugin'} eq "virt" and $ident->{'type'} =~ /^disk/ and $val eq "LIBVIRT-DISK"){
+	    $ident->{'type'} =~ s/_ops//;
+            $string .= "-" . $ident->{'type'};
+	}
+	elsif ($ident->{'plugin'} eq "virt" and $ident->{'type'} =~ /^if/ and $val eq "LIBVIRT-NET") {
 	    $ident->{'type'} =~ s/_packets//;
     	    $string .= "-" . $ident->{'type'};
 	}
@@ -215,6 +266,16 @@ sub putidjson {
 	elsif( $ident->{'plugin'} eq "libvirt" and $ident->{'type'} =~ /^if$/ and $val eq "LIBVIRT-NET"){
     	    return $stringjson;
 	}
+	elsif( $ident->{'plugin'} eq "virt" and $ident->{'type'} eq "virt_cpu_total" and $val eq "LIBVIRT-CPU"){
+    	    return $stringjson;
+	}
+	elsif( $ident->{'plugin'} eq "virt" and $ident->{'type'} =~ /^disk$/ and $val eq "LIBVIRT-DISK"){
+    	    return $stringjson;
+	}
+	elsif( $ident->{'plugin'} eq "virt" and $ident->{'type'} =~ /^if$/ and $val eq "LIBVIRT-NET"){
+    	    return $stringjson;
+	}
+	# unknown plugin / known plugin not found
 }
 
 sub listval {
@@ -234,10 +295,6 @@ sub listval {
 	    print STDERR "socket error: " . $sock->{'error'} . $/;
 	    return;
 	}
-
-#	foreach my $ident (@res) {
-#		print putidB($ident);
-#	}
 
 	my $firstline = 1;
 
@@ -317,11 +374,11 @@ sub getval {
 	    #debug
 	    #print $line[0] . "\n";
 
-	    if( $line[0] =~ /^.*\/libvirt\/virt_cpu_total/ ){
+	    if( $line[0] =~ /^.*\/.*virt.*\/virt_cpu_total/ ){
                 print "$vals->{$key}\n";
 	    }
-	    elsif($line[0] =~ /^.*\/libvirt\/disk_ops/){
-	    
+	    elsif( $line[0] =~ /^.*\/.*virt.*\/disk_ops/ ){
+
 		if($val_type eq "OPS-READ" and $key eq "read"){
             	    print "$vals->{$key}\n";
 		}
@@ -332,7 +389,7 @@ sub getval {
                     print "\t$key: $vals->{$key}\n";
 		}
 	    }
-	    elsif($line[0] =~ /^.*\/libvirt\/disk_octets/){
+	    elsif($line[0] =~ /^.*\/.*virt.*\/disk_octets/){
 	    
 		#debug
 		#print "DEBUG: disk_octets options ..." . $/;
@@ -348,7 +405,7 @@ sub getval {
 		}
 
 	    }
-	    elsif($line[0] =~ /^.*\/libvirt\/if_packets/){
+	    elsif($line[0] =~ /^.*\/.*virt.*\/if_packets/){
 
 		#debug
 		#print "DEBUG: if_packets options ..." . $/;
@@ -364,7 +421,7 @@ sub getval {
 		}
 		
 	    }
-	    elsif($line[0] =~ /^.*\/libvirt\/if_octets/){
+	    elsif($line[0] =~ /^.*\/.*virt.*\/if_octets/){
 
 		#debug
 		#print "DEBUG: if_octets options ..." . $/;
@@ -386,4 +443,5 @@ sub getval {
         }
         return 1;
 }
+
 
