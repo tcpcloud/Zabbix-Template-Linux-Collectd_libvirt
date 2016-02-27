@@ -2,6 +2,14 @@
 
 A Zabbix templates for libvirt stats
 
+Version 1.4.0 and higher are tested on:
+
+> CentOS 6.x x86_64, Collectd 4.10
+> Zabbix 2.2, Zabbix 2.4
+
+> CentOS 7.x x86_64, Collectd 5.5
+> Zabbix 2.2, Zabbix 2.4
+
 versions 1.2 and lower were tested on:
 
 > Ubuntu 12.04 x86_64 with KVM (kernel 3.5.0-44), collectd 4.10
